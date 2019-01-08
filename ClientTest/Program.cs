@@ -32,6 +32,7 @@ namespace ClientTest
 
             tcpClient.Close();
 
+            IPAddress myIp = IPAddress.Parse("127.0.0.1");
 
 
 
