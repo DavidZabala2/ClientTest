@@ -11,43 +11,60 @@ namespace ClientTest
 {
     class Program
     {
+       
         public static void Main(string[] args)
         {
-            try
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelKeyPress);
+            while (true)
             {
-                string address = "127.0.0.1";
-                int port = 8001;
+                try
+                {
+                    string address = "127.0.0.1";
+                    int port = 8001;
 
-                Console.WriteLine("Ansluter...");
-                TcpClient tcpClient = new TcpClient();
-                tcpClient.Connect(address, port);
-                Console.WriteLine("Ansluten!");
+                    //Anslut till servern;
+                    Console.WriteLine("Ansluter...");
+                    TcpClient tcpClient = new TcpClient();
+                    tcpClient.Connect(address, port);
+                    Console.WriteLine("Ansluten!");
 
-                Console.Write("Skriv in meddelande: ");
-                String message = Console.ReadLine();
 
-                Byte[] bMessage = System.Text.Encoding.ASCII.GetBytes(message);
+                    //Skriv in meddelande att skicka:
+                    Console.Write("Skriv in meddelande: ");
+                    String message = Console.ReadLine();
 
-                Console.WriteLine("Skickar...");
-                NetworkStream tcpStream = tcpClient.GetStream();
-                tcpStream.Write(bMessage, 0, bMessage.Length);
+                    Byte[] bMessage = System.Text.Encoding.ASCII.GetBytes(message);
 
-                Byte[] bRead = new byte[256];
-                int bReadSize = tcpStream.Read(bRead, 0, bRead.Length);
+                    //Skicka iväg meddelandet:
+                    Console.WriteLine("Skickar...");
+                    NetworkStream tcpStream = tcpClient.GetStream();
+                    tcpStream.Write(bMessage, 0, bMessage.Length);
 
-                string read = "";
-                for (int i = 0; i < bReadSize; i++)
-                    read += Convert.ToChar(bRead[i]);
+                    //Tag emote meddelande från servern:
+                    Byte[] bRead = new byte[256];
+                    int bReadSize = tcpStream.Read(bRead, 0, bRead.Length);
 
-                Console.WriteLine("Servern säger: " + read);
+                    //Konvertera meddelandet  till ett string-objekt och skriv ut
+                    string read = "";
+                    for (int i = 0; i < bReadSize; i++)
+                        read += Convert.ToChar(bRead[i]);
 
-                tcpClient.Close();
-                Console.ReadKey();
+                    Console.WriteLine("Servern säger: " + read);
+
+                    //Stäng avslutningen
+                    tcpClient.Close();
+                    Console.ReadKey();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                }
             }
-            catch (Exception e)
+        }
+            static void CancelKeyPress(object sender, ConsoleCancelEventArgs e)
             {
-                Console.WriteLine("Error: " + e.Message);
+            //CTRL + C stänger Klient
+                Console.WriteLine("Klient stängdes av!");
             }
+        }
     }
-    }
-}
